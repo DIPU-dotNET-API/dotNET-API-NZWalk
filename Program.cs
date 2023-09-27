@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NZWalksAPI.Data;
+using NZWalksAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,12 +11,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//For connectionstring
+//For connection string
 var conxString = builder.Configuration.GetConnectionString("NZWalksconx");
 
 //For DB Context (using MySQL)
 builder.Services.AddDbContext<NZWalksDbContext>(options =>
     options.UseMySql(conxString, ServerVersion.AutoDetect(conxString)));
+
+//Injecting Repository
+builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 
 var app = builder.Build();
 
