@@ -51,8 +51,7 @@ namespace NZWalksAPI.Controllers
         }
 
         //Endpoint: [GET] api/regions/id
-        [HttpGet]
-        [Route("{id:Guid}")]
+        [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             //Get Data from DB - Domain Models.
@@ -88,7 +87,7 @@ namespace NZWalksAPI.Controllers
 
             //Update DB.
             regionDomainModel = await _regionRepository.CreateAsync(regionDomainModel);
-            
+
             //Use DTO
             var regionDto = new RegionDTO
             {
@@ -97,64 +96,60 @@ namespace NZWalksAPI.Controllers
                 Name = regionDomainModel.Name,
                 RegionImageUrl = regionDomainModel.RegionImageUrl
             };
-            
+
             //return DTO
-            return CreatedAtAction(nameof(GetById), new {id = regionDomainModel.Id}, regionDto);
+            return CreatedAtAction(nameof(GetById), new { id = regionDomainModel.Id }, regionDto);
         }
 
         //Endpoint:: [PUT] /api/regions/id
-        [HttpPut]
-        [Route("{id:Guid}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDTO updateRegionRequestDto)
+        [HttpPut("{id:Guid}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id,
+            [FromBody] UpdateRegionRequestDTO updateRegionRequestDto)
         {
-            var regionDomainModel = await _dbContext.Regions.FirstOrDefaultAsync( x=> x.Id == id);
+            //map to domain model
+            var regionDomainModel = new Region
+            {
+                Code = updateRegionRequestDto.Code,
+                Name = updateRegionRequestDto.Name,
+                RegionImageUrl = updateRegionRequestDto.RegionImageUrl
+            };
 
-            if (regionDomainModel == null)
+            var getRegion = await _regionRepository.UpdateAsync(id, regionDomainModel);
+
+            if (getRegion == null)
                 return NotFound();
-            
-            //Map to domain model
-            regionDomainModel.Code = updateRegionRequestDto.Code;
-            regionDomainModel.Name = updateRegionRequestDto.Name;
-            regionDomainModel.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
 
-            await _dbContext.SaveChangesAsync();
-            
             //Map to DTO.
             var regionDto = new RegionDTO
             {
-                Id = regionDomainModel.Id,
-                Code = regionDomainModel.Code,
-                Name = regionDomainModel.Name,
-                RegionImageUrl = regionDomainModel.RegionImageUrl
+                Id = getRegion.Id,
+                Code = getRegion.Code,
+                Name = getRegion.Name,
+                RegionImageUrl = getRegion.RegionImageUrl
             };
-            
+
             //Return DTO
             return Ok(regionDto);
         }
 
         //Endpoint: [DELETE] /api/regions/id
-        [HttpDelete]
-        [Route("{id:Guid}")]
+        [HttpDelete("{id:Guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var regionDomainModel = await _dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
+            var getRegion = await _regionRepository.DeleteAsync(id);
 
-            if (regionDomainModel == null)
+            if (getRegion == null)
                 return NotFound();
             
-            //Map DTO.
+            //Map to Dto
             var regionDto = new RegionDTO
             {
-                Id = regionDomainModel.Id,
-                Code = regionDomainModel.Code,
-                Name = regionDomainModel.Name,
-                RegionImageUrl = regionDomainModel.RegionImageUrl
+                Id = getRegion.Id,
+                Code = getRegion.Code,
+                Name = getRegion.Name,
+                RegionImageUrl = getRegion.RegionImageUrl
             };
-            
-            //Delete Region
-            _dbContext.Regions.Remove(regionDomainModel);
-            await _dbContext.SaveChangesAsync();
-            
+
             //Return DTO
             return Ok(regionDto);
         }

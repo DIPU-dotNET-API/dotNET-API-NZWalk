@@ -12,6 +12,7 @@ public class SQLRegionRepository : IRegionRepository
     {
         _dbContext = dbContext;
     }
+    
     public async Task<List<Region>> GetAllAsync()
     {
         return await _dbContext.Regions.ToListAsync();
@@ -31,11 +32,30 @@ public class SQLRegionRepository : IRegionRepository
 
     public async Task<Region?> UpdateAsync(Guid id, Region region)
     {
-        throw new NotImplementedException();
+        var existingRegion = await GetByIdAsync(id);
+
+        if (existingRegion == null)
+            return null;
+
+        existingRegion.Code = region.Code;
+        existingRegion.Name = region.Name;
+        existingRegion.RegionImageUrl = region.RegionImageUrl;
+
+        await _dbContext.SaveChangesAsync();
+
+        return existingRegion;
     }
 
     public async Task<Region?> DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var existingRegion = await GetByIdAsync(id);
+        
+        if (existingRegion == null)
+            return null;
+
+        _dbContext.Regions.Remove(existingRegion);
+        await _dbContext.SaveChangesAsync();
+        
+        return existingRegion;
     }
 }
