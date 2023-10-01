@@ -20,7 +20,7 @@ builder.Services.AddDbContext<NZWalksDbContext>(options =>
     options.UseMySql(conxString, ServerVersion.AutoDetect(conxString)));
 
 //Injecting Repository
-builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
+builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
 
 //Injecting Automapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));

@@ -4,11 +4,11 @@ using NZWalksAPI.Models.Domain;
 
 namespace NZWalksAPI.Repositories;
 
-public class SQLRegionRepository : IRegionRepository
+public class SqlRegionRepository : IRegionRepository
 {
     private readonly NZWalksDbContext _dbContext;
 
-    public SQLRegionRepository(NZWalksDbContext dbContext)
+    public SqlRegionRepository(NZWalksDbContext dbContext)
     {
         _dbContext = dbContext;
     }
